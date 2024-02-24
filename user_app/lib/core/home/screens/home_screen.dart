@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,9 +10,10 @@ import 'package:user_app/utils/user_full_functions.dart';
 class HomeScreen extends StatefulWidget {
   static const String routeName = "/home-screen";
 
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 
@@ -27,22 +26,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Fetch products when the screen is initialized
     final provider = Provider.of<MainProvider>(context, listen: false);
-
     provider.setProductData(context);
-    //lazzy loading logic
 
+    // Lazy loading logic
     _scrollController.addListener(() {
       if (_scrollController.offset >=
           _scrollController.position.maxScrollExtent) {
-        provider.updateLazyLoading(true);
-        provider.loadMoreData(); // Remove Future.delayed
+        if (!provider.isLazyLoading) {
+          // Check if lazy loading is not already in progress
+          provider.loadMoreData(context);
+        }
       }
     });
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _scrollController.dispose();
     super.dispose();
   }
@@ -94,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     return FadeInLeftBig(
                       delay: const Duration(milliseconds: 1),
                       child: ProductCard(
-                        productModel: mainProvider.productList[index],
+                        productModel: mainProvider.mainList[index],
                       ),
                     );
                   },
